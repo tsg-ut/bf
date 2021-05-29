@@ -9,7 +9,7 @@ struct Program {
     mapping: BTreeMap<usize, usize>,
 }
 
-enum Cmd {
+enum Token {
     Inc, // +
     Dec, // -
     Bwd, // <
@@ -20,22 +20,90 @@ enum Cmd {
     Put, // .
 }
 
+enum Cmd {
+    Plus(u8),    // + -
+    Step(isize), // < >
+    Opn,         // [
+    Cls,         // ]
+    Get,         // ,
+    Put,         // .
+}
+
+fn tokenize(code: &String) -> Vec<Token> {
+    let mut tokens = Vec::new();
+    for c in code.chars() {
+        match c {
+            '+' => tokens.push(Token::Inc),
+            '-' => tokens.push(Token::Dec),
+            '<' => tokens.push(Token::Bwd),
+            '>' => tokens.push(Token::Fwd),
+            '[' => tokens.push(Token::Opn),
+            ']' => tokens.push(Token::Cls),
+            ',' => tokens.push(Token::Get),
+            '.' => tokens.push(Token::Put),
+            _ => (),
+        }
+    }
+    tokens
+}
+
 fn compile(code: &String) -> Option<Program> {
+    let tokens = tokenize(&code);
     let mut cmds = Vec::new();
     let mut mapping = BTreeMap::new();
     let mut stack = VecDeque::new();
-    for c in code.chars() {
-        match c {
-            '+' => cmds.push(Cmd::Inc),
-            '-' => cmds.push(Cmd::Dec),
-            '<' => cmds.push(Cmd::Bwd),
-            '>' => cmds.push(Cmd::Fwd),
-            '[' => {
+    for t in tokens.iter() {
+        match t {
+            Token::Inc => {
+                if let Some(Cmd::Plus(plus)) = cmds.last_mut() {
+                    if plus.wrapping_add(1) == 0 {
+                        cmds.pop();
+                    } else {
+                        *plus = plus.wrapping_add(1);
+                    }
+                } else {
+                    cmds.push(Cmd::Plus(1));
+                }
+            }
+            Token::Dec => {
+                if let Some(Cmd::Plus(plus)) = cmds.last_mut() {
+                    if plus.wrapping_sub(1) == 0 {
+                        cmds.pop();
+                    } else {
+                        *plus = plus.wrapping_sub(1);
+                    }
+                } else {
+                    cmds.push(Cmd::Plus(255));
+                }
+            }
+            Token::Bwd => {
+                if let Some(Cmd::Step(step)) = cmds.last_mut() {
+                    if *step - 1 == 0 {
+                        cmds.pop();
+                    } else {
+                        *step = *step - 1;
+                    }
+                } else {
+                    cmds.push(Cmd::Step(-1));
+                }
+            }
+            Token::Fwd => {
+                if let Some(Cmd::Step(step)) = cmds.last_mut() {
+                    if *step + 1 == 0 {
+                        cmds.pop();
+                    } else {
+                        *step = *step + 1;
+                    }
+                } else {
+                    cmds.push(Cmd::Step(1));
+                }
+            }
+            Token::Opn => {
                 let opn = cmds.len();
                 stack.push_back(opn);
                 cmds.push(Cmd::Opn);
             }
-            ']' => {
+            Token::Cls => {
                 if let Some(opn) = stack.pop_back() {
                     let cls = cmds.len();
                     mapping.insert(opn, cls);
@@ -45,9 +113,12 @@ fn compile(code: &String) -> Option<Program> {
                     return None;
                 }
             }
-            ',' => cmds.push(Cmd::Get),
-            '.' => cmds.push(Cmd::Put),
-            _ => (),
+            Token::Get => {
+                cmds.push(Cmd::Get);
+            }
+            Token::Put => {
+                cmds.push(Cmd::Put);
+            }
         }
     }
     Some(Program { cmds, mapping })
@@ -62,21 +133,15 @@ impl Program {
         let mut output = Vec::new();
         while ip < self.cmds.len() {
             match self.cmds[ip] {
-                Cmd::Inc => {
-                    mem[ptr] = mem[ptr].wrapping_add(1);
+                Cmd::Plus(plus) => {
+                    mem[ptr] = mem[ptr].wrapping_add(plus);
                 }
-                Cmd::Dec => {
-                    mem[ptr] = mem[ptr].wrapping_sub(1);
-                }
-                Cmd::Bwd => {
-                    if ptr == 0 {
+                Cmd::Step(step) => {
+                    if ptr as isize + step < 0 {
                         todo!("negative index");
                     }
-                    ptr -= 1;
-                }
-                Cmd::Fwd => {
-                    ptr += 1;
-                    if ptr == mem.len() {
+                    ptr = (ptr as isize + step) as usize;
+                    while ptr >= mem.len() {
                         mem.push(0);
                     }
                 }
