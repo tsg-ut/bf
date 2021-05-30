@@ -1,7 +1,7 @@
 use bf::compile;
 use std::{
     env, fs,
-    io::{self, stdout, Read, Write},
+    io::{self, Read, Write},
     process::exit,
 };
 
@@ -19,7 +19,7 @@ fn main() -> io::Result<()> {
         let mut input = Vec::new();
         io::stdin().read_to_end(&mut input)?;
         let output = program.run(&input).unwrap();
-        stdout().write_all(&output)?;
+        io::stdout().write_all(&output)?;
     } else {
         eprintln!("filename not specified");
         exit(1);
