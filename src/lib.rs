@@ -1,8 +1,7 @@
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::VecDeque;
 
 pub struct Program {
     instructions: Vec<Instr>,
-    mapping: BTreeMap<usize, usize>,
 }
 
 enum Token {
@@ -19,8 +18,8 @@ enum Token {
 enum Instr {
     Plus(u8),    // + -
     Step(isize), // < >
-    Opn,         // [
-    Cls,         // ]
+    Opn(usize),  // [
+    Cls(usize),  // ]
     Get,         // ,
     Put,         // .
 }
@@ -46,7 +45,6 @@ fn tokenize(code: &String) -> Vec<Token> {
 pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
     let mut instructions = Vec::new();
-    let mut mapping = BTreeMap::new();
     let mut brackets = VecDeque::new();
     for t in tokens.iter() {
         match t {
@@ -97,14 +95,13 @@ pub fn compile(code: &String) -> Result<Program, &str> {
             Token::Opn => {
                 let opn = instructions.len();
                 brackets.push_back(opn);
-                instructions.push(Instr::Opn);
+                instructions.push(Instr::Opn(0));
             }
             Token::Cls => {
                 if let Some(opn) = brackets.pop_back() {
                     let cls = instructions.len();
-                    mapping.insert(opn, cls);
-                    mapping.insert(cls, opn);
-                    instructions.push(Instr::Cls);
+                    instructions[opn] = Instr::Opn(cls);
+                    instructions.push(Instr::Cls(opn));
                 } else {
                     return Err("unmathced ']'");
                 }
@@ -120,10 +117,7 @@ pub fn compile(code: &String) -> Result<Program, &str> {
     if !brackets.is_empty() {
         return Err("unmathced '['");
     }
-    Ok(Program {
-        instructions,
-        mapping,
-    })
+    Ok(Program { instructions })
 }
 
 impl Program {
@@ -147,14 +141,14 @@ impl Program {
                         mem.push(0);
                     }
                 }
-                Instr::Opn => {
+                Instr::Opn(cls) => {
                     if mem[ptr] == 0 {
-                        ip = self.mapping[&ip];
+                        ip = cls;
                     }
                 }
-                Instr::Cls => {
+                Instr::Cls(opn) => {
                     if mem[ptr] != 0 {
-                        ip = self.mapping[&ip];
+                        ip = opn;
                     }
                 }
                 Instr::Get => {
