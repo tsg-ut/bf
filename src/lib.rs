@@ -1,7 +1,7 @@
 use std::collections::{BTreeMap, VecDeque};
 
 pub struct Program {
-    cmds: Vec<Cmd>,
+    instructions: Vec<Instr>,
     mapping: BTreeMap<usize, usize>,
 }
 
@@ -16,7 +16,7 @@ enum Token {
     Put, // .
 }
 
-enum Cmd {
+enum Instr {
     Plus(u8),    // + -
     Step(isize), // < >
     Opn,         // [
@@ -45,82 +45,85 @@ fn tokenize(code: &String) -> Vec<Token> {
 
 pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
-    let mut cmds = Vec::new();
+    let mut instructions = Vec::new();
     let mut mapping = BTreeMap::new();
     let mut stack = VecDeque::new();
     for t in tokens.iter() {
         match t {
             Token::Inc => {
-                if let Some(Cmd::Plus(plus)) = cmds.last_mut() {
+                if let Some(Instr::Plus(plus)) = instructions.last_mut() {
                     if plus.wrapping_add(1) == 0 {
-                        cmds.pop();
+                        instructions.pop();
                     } else {
                         *plus = plus.wrapping_add(1);
                     }
                 } else {
-                    cmds.push(Cmd::Plus(1));
+                    instructions.push(Instr::Plus(1));
                 }
             }
             Token::Dec => {
-                if let Some(Cmd::Plus(plus)) = cmds.last_mut() {
+                if let Some(Instr::Plus(plus)) = instructions.last_mut() {
                     if plus.wrapping_sub(1) == 0 {
-                        cmds.pop();
+                        instructions.pop();
                     } else {
                         *plus = plus.wrapping_sub(1);
                     }
                 } else {
-                    cmds.push(Cmd::Plus(255));
+                    instructions.push(Instr::Plus(255));
                 }
             }
             Token::Bwd => {
-                if let Some(Cmd::Step(step)) = cmds.last_mut() {
+                if let Some(Instr::Step(step)) = instructions.last_mut() {
                     if *step - 1 == 0 {
-                        cmds.pop();
+                        instructions.pop();
                     } else {
                         *step = *step - 1;
                     }
                 } else {
-                    cmds.push(Cmd::Step(-1));
+                    instructions.push(Instr::Step(-1));
                 }
             }
             Token::Fwd => {
-                if let Some(Cmd::Step(step)) = cmds.last_mut() {
+                if let Some(Instr::Step(step)) = instructions.last_mut() {
                     if *step + 1 == 0 {
-                        cmds.pop();
+                        instructions.pop();
                     } else {
                         *step = *step + 1;
                     }
                 } else {
-                    cmds.push(Cmd::Step(1));
+                    instructions.push(Instr::Step(1));
                 }
             }
             Token::Opn => {
-                let opn = cmds.len();
+                let opn = instructions.len();
                 stack.push_back(opn);
-                cmds.push(Cmd::Opn);
+                instructions.push(Instr::Opn);
             }
             Token::Cls => {
                 if let Some(opn) = stack.pop_back() {
-                    let cls = cmds.len();
+                    let cls = instructions.len();
                     mapping.insert(opn, cls);
                     mapping.insert(cls, opn);
-                    cmds.push(Cmd::Cls);
+                    instructions.push(Instr::Cls);
                 } else {
                     return Err("unmathced ']'");
                 }
             }
             Token::Get => {
-                cmds.push(Cmd::Get);
+                instructions.push(Instr::Get);
             }
             Token::Put => {
-                cmds.push(Cmd::Put);
+                instructions.push(Instr::Put);
             }
         }
     }
     if !stack.is_empty() {
         return Err("unmathced '['");
     }
-    Ok(Program { cmds, mapping })
+    Ok(Program {
+        instructions,
+        mapping,
+    })
 }
 
 impl Program {
@@ -130,12 +133,12 @@ impl Program {
         let mut ip = 0;
         let mut input_iter = input.into_iter();
         let mut output = Vec::new();
-        while ip < self.cmds.len() {
-            match self.cmds[ip] {
-                Cmd::Plus(plus) => {
+        while ip < self.instructions.len() {
+            match self.instructions[ip] {
+                Instr::Plus(plus) => {
                     mem[ptr] = mem[ptr].wrapping_add(plus);
                 }
-                Cmd::Step(step) => {
+                Instr::Step(step) => {
                     if ptr as isize + step < 0 {
                         todo!("negative index");
                     }
@@ -144,20 +147,20 @@ impl Program {
                         mem.push(0);
                     }
                 }
-                Cmd::Opn => {
+                Instr::Opn => {
                     if mem[ptr] == 0 {
                         ip = self.mapping[&ip];
                     }
                 }
-                Cmd::Cls => {
+                Instr::Cls => {
                     if mem[ptr] != 0 {
                         ip = self.mapping[&ip];
                     }
                 }
-                Cmd::Get => {
+                Instr::Get => {
                     mem[ptr] = *input_iter.next().unwrap_or(&255);
                 }
-                Cmd::Put => {
+                Instr::Put => {
                     output.push(mem[ptr]);
                 }
             }
