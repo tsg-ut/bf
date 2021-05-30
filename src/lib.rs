@@ -43,7 +43,7 @@ fn tokenize(code: &String) -> Vec<Token> {
     tokens
 }
 
-pub fn compile(code: &String) -> Option<Program> {
+pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
     let mut cmds = Vec::new();
     let mut mapping = BTreeMap::new();
@@ -106,7 +106,7 @@ pub fn compile(code: &String) -> Option<Program> {
                     mapping.insert(cls, opn);
                     cmds.push(Cmd::Cls);
                 } else {
-                    return None;
+                    return Err("unmathced ']'");
                 }
             }
             Token::Get => {
@@ -117,7 +117,10 @@ pub fn compile(code: &String) -> Option<Program> {
             }
         }
     }
-    Some(Program { cmds, mapping })
+    if !stack.is_empty() {
+        return Err("unmathced '['");
+    }
+    Ok(Program { cmds, mapping })
 }
 
 impl Program {
