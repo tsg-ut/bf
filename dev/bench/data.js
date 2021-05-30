@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1622361349639,
+  "lastUpdate": 1622363689677,
   "repoUrl": "https://github.com/tsg-ut/bf",
   "entries": {
     "Benchmark": [
@@ -71,6 +71,42 @@ window.BENCHMARK_DATA = {
             "name": "elvm_hello",
             "value": 1103670889,
             "range": "± 57329615",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "22975590+n4o847@users.noreply.github.com",
+            "name": "n4o847",
+            "username": "n4o847"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "859a7b9512ed1484dbdb57de9e34cf5c0988b51a",
+          "message": "Merge pull request #11 from tsg-ut/optimize-jump\n\nOptimize jump instructions",
+          "timestamp": "2021-05-30T17:33:07+09:00",
+          "tree_id": "e7057b820e4c6f6b7d9d72e3d670accf749a6ae1",
+          "url": "https://github.com/tsg-ut/bf/commit/859a7b9512ed1484dbdb57de9e34cf5c0988b51a"
+        },
+        "date": 1622363688679,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "cat",
+            "value": 331,
+            "range": "± 12",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "elvm_hello",
+            "value": 478119442,
+            "range": "± 11182090",
             "unit": "ns/iter"
           }
         ]
