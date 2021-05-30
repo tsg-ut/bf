@@ -47,7 +47,7 @@ pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
     let mut instructions = Vec::new();
     let mut mapping = BTreeMap::new();
-    let mut stack = VecDeque::new();
+    let mut brackets = VecDeque::new();
     for t in tokens.iter() {
         match t {
             Token::Inc => {
@@ -96,11 +96,11 @@ pub fn compile(code: &String) -> Result<Program, &str> {
             }
             Token::Opn => {
                 let opn = instructions.len();
-                stack.push_back(opn);
+                brackets.push_back(opn);
                 instructions.push(Instr::Opn);
             }
             Token::Cls => {
-                if let Some(opn) = stack.pop_back() {
+                if let Some(opn) = brackets.pop_back() {
                     let cls = instructions.len();
                     mapping.insert(opn, cls);
                     mapping.insert(cls, opn);
@@ -117,7 +117,7 @@ pub fn compile(code: &String) -> Result<Program, &str> {
             }
         }
     }
-    if !stack.is_empty() {
+    if !brackets.is_empty() {
         return Err("unmathced '['");
     }
     Ok(Program {
