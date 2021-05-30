@@ -4,7 +4,7 @@ use std::fs;
 
 pub fn bench_cat(c: &mut Criterion) {
     let code = fs::read_to_string("examples/cat.bf").unwrap();
-    c.bench_function("cat.bf", |b| {
+    c.bench_function("cat", |b| {
         b.iter(|| {
             let program = compile(black_box(&code)).unwrap();
             let input = b"meow".to_vec();
@@ -15,7 +15,7 @@ pub fn bench_cat(c: &mut Criterion) {
 
 pub fn bench_elvm_hello(c: &mut Criterion) {
     let code = fs::read_to_string("examples/elvm-hello.bf").unwrap();
-    c.bench_function("elvm-hello.bf", |b| {
+    c.bench_function("elvm_hello", |b| {
         b.iter(|| {
             let program = compile(black_box(&code)).unwrap();
             let input = b"".to_vec();
