@@ -45,7 +45,7 @@ fn tokenize(code: &String) -> Vec<Token> {
 pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
     let mut instructions = Vec::new();
-    let mut brackets = VecDeque::new();
+    let mut brackets = Vec::new();
     for t in tokens.iter() {
         match t {
             Token::Inc => {
@@ -94,11 +94,11 @@ pub fn compile(code: &String) -> Result<Program, &str> {
             }
             Token::Opn => {
                 let opn = instructions.len();
-                brackets.push_back(opn);
+                brackets.push(opn);
                 instructions.push(Instr::Opn(0));
             }
             Token::Cls => {
-                if let Some(opn) = brackets.pop_back() {
+                if let Some(opn) = brackets.pop() {
                     let cls = instructions.len();
                     instructions[opn] = Instr::Opn(cls);
                     instructions.push(Instr::Cls(opn));
@@ -121,9 +121,10 @@ pub fn compile(code: &String) -> Result<Program, &str> {
 }
 
 impl Program {
-    pub fn run(&self, input: &Vec<u8>) -> Option<Vec<u8>> {
+    pub fn run(&self, input: &[u8]) -> Option<Vec<u8>> {
         let mut ptr = 0;
-        let mut mem: Vec<u8> = vec![0];
+        let mut mem: VecDeque<u8> = VecDeque::new();
+        mem.push_back(0);
         let mut ip = 0;
         let mut input_iter = input.into_iter();
         let mut output = Vec::new();
@@ -133,12 +134,17 @@ impl Program {
                     mem[ptr] = mem[ptr].wrapping_add(plus);
                 }
                 Instr::Step(step) => {
-                    if ptr as isize + step < 0 {
-                        todo!("negative index");
-                    }
-                    ptr = (ptr as isize + step) as usize;
-                    while ptr >= mem.len() {
-                        mem.push(0);
+                    let ptr_next = ptr as isize + step;
+                    if ptr_next >= 0 {
+                        ptr = ptr_next as usize;
+                        while ptr >= mem.len() {
+                            mem.push_back(0);
+                        }
+                    } else {
+                        ptr = 0;
+                        for _ in ptr_next..0 {
+                            mem.push_front(0);
+                        }
                     }
                 }
                 Instr::Opn(cls) => {
