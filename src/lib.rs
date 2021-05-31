@@ -45,7 +45,7 @@ fn tokenize(code: &String) -> Vec<Token> {
 pub fn compile(code: &String) -> Result<Program, &str> {
     let tokens = tokenize(&code);
     let mut instructions = Vec::new();
-    let mut brackets = VecDeque::new();
+    let mut brackets = Vec::new();
     for t in tokens.iter() {
         match t {
             Token::Inc => {
@@ -94,11 +94,11 @@ pub fn compile(code: &String) -> Result<Program, &str> {
             }
             Token::Opn => {
                 let opn = instructions.len();
-                brackets.push_back(opn);
+                brackets.push(opn);
                 instructions.push(Instr::Opn(0));
             }
             Token::Cls => {
-                if let Some(opn) = brackets.pop_back() {
+                if let Some(opn) = brackets.pop() {
                     let cls = instructions.len();
                     instructions[opn] = Instr::Opn(cls);
                     instructions.push(Instr::Cls(opn));
