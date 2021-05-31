@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1622363689677,
+  "lastUpdate": 1622462645726,
   "repoUrl": "https://github.com/tsg-ut/bf",
   "entries": {
     "Benchmark": [
@@ -107,6 +107,42 @@ window.BENCHMARK_DATA = {
             "name": "elvm_hello",
             "value": 478119442,
             "range": "± 11182090",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "22975590+n4o847@users.noreply.github.com",
+            "name": "n4o847",
+            "username": "n4o847"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "9dd44fc2fbc3daa2b8ecbe8d83ce7e2db6e69ada",
+          "message": "Merge pull request #12 from tsg-ut/feature-negative-index\n\nAllow negative memory pointers",
+          "timestamp": "2021-05-31T21:01:58+09:00",
+          "tree_id": "1f7b393f4fea3991657d0f77d9ea88eebc36d36c",
+          "url": "https://github.com/tsg-ut/bf/commit/9dd44fc2fbc3daa2b8ecbe8d83ce7e2db6e69ada"
+        },
+        "date": 1622462644668,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "cat",
+            "value": 325,
+            "range": "± 11",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "elvm_hello",
+            "value": 582728722,
+            "range": "± 13519116",
             "unit": "ns/iter"
           }
         ]
