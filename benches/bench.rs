@@ -7,8 +7,8 @@ pub fn bench_cat(c: &mut Criterion) {
     c.bench_function("cat", |b| {
         b.iter(|| {
             let program = compile(black_box(&code)).unwrap();
-            let input = b"meow".to_vec();
-            let _output = program.run(&input).unwrap();
+            let input = b"meow";
+            let _output = program.run(input).unwrap();
         });
     });
 }
@@ -18,8 +18,8 @@ pub fn bench_elvm_hello(c: &mut Criterion) {
     c.bench_function("elvm_hello", |b| {
         b.iter(|| {
             let program = compile(black_box(&code)).unwrap();
-            let input = b"".to_vec();
-            let _output = program.run(&input).unwrap();
+            let input = b"";
+            let _output = program.run(input).unwrap();
         });
     });
 }

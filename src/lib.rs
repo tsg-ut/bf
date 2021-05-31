@@ -121,7 +121,7 @@ pub fn compile(code: &String) -> Result<Program, &str> {
 }
 
 impl Program {
-    pub fn run(&self, input: &Vec<u8>) -> Option<Vec<u8>> {
+    pub fn run(&self, input: &[u8]) -> Option<Vec<u8>> {
         let mut ptr = 0;
         let mut mem: VecDeque<u8> = VecDeque::new();
         mem.push_back(0);
