@@ -1,5 +1,5 @@
 window.BENCHMARK_DATA = {
-  "lastUpdate": 1622462645726,
+  "lastUpdate": 1622652388108,
   "repoUrl": "https://github.com/tsg-ut/bf",
   "entries": {
     "Benchmark": [
@@ -143,6 +143,42 @@ window.BENCHMARK_DATA = {
             "name": "elvm_hello",
             "value": 582728722,
             "range": "± 13519116",
+            "unit": "ns/iter"
+          }
+        ]
+      },
+      {
+        "commit": {
+          "author": {
+            "email": "22975590+n4o847@users.noreply.github.com",
+            "name": "n4o847",
+            "username": "n4o847"
+          },
+          "committer": {
+            "email": "noreply@github.com",
+            "name": "GitHub",
+            "username": "web-flow"
+          },
+          "distinct": true,
+          "id": "105d2191692e8c60a2ee1e9e1a1b3377a038c68a",
+          "message": "Merge pull request #13 from tsg-ut/add-license-1\n\nCreate LICENSE",
+          "timestamp": "2021-06-03T01:44:36+09:00",
+          "tree_id": "9527e7ff213d53955205d7a2e28dfc775b267095",
+          "url": "https://github.com/tsg-ut/bf/commit/105d2191692e8c60a2ee1e9e1a1b3377a038c68a"
+        },
+        "date": 1622652387539,
+        "tool": "cargo",
+        "benches": [
+          {
+            "name": "cat",
+            "value": 285,
+            "range": "± 10",
+            "unit": "ns/iter"
+          },
+          {
+            "name": "elvm_hello",
+            "value": 528089386,
+            "range": "± 737315",
             "unit": "ns/iter"
           }
         ]
