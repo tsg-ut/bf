@@ -1,5 +1,7 @@
 use std::collections::VecDeque;
 
+mod jit;
+
 pub struct Program {
     instructions: Vec<Instr>,
 }
@@ -15,7 +17,7 @@ enum Token {
     Put, // .
 }
 
-enum Instr {
+pub enum Instr {
     Plus(u8),    // + -
     Step(isize), // < >
     Opn(usize),  // [
